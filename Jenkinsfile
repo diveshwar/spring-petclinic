@@ -2,17 +2,18 @@ pipeline {
     agent any
 
     tools {
+        // Make sure Maven is configured as 'Maven 3.8.1' in Jenkins Global Tool Configuration
         maven 'Maven 3.8.1'
     }
 
     environment {
-        DOCKER_IMAGE = "yourdockerhubusername/sample-java-app:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "diveshwar/spring-petclinic:${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-username/sample-java-app.git'
+                git 'https://github.com/diveshwar/spring-petclinic.git'
             }
         }
 
@@ -30,7 +31,7 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-hub-creds']) {
+                withDockerRegistry([url: '', credentialsId: 'docker-hub-creds']) {
                     sh 'docker push $DOCKER_IMAGE'
                 }
             }
@@ -38,7 +39,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl set image deployment/sample-app-deployment sample-container=$DOCKER_IMAGE'
+                sh 'kubectl set image deployment/spring-petclinic-deployment spring-petclinic-container=$DOCKER_IMAGE'
             }
         }
     }
